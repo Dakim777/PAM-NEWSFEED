@@ -28,7 +28,7 @@ Aplikasi News Flash Live adalah simulator umpan berita (news feed) modern yang d
 
 ### Langkah-langkah
 1. Clone Repositori:
-   git clone https://github.com/username-anda/nama-repo.git
+   git clone : https://github.com/Dakim777/PAM-NEWSFEED.git
 2. Buka Proyek:
    Buka Android Studio, lalu pilih Open dan arahkan ke folder hasil clone tadi.
 3. Sync Gradle:
@@ -44,4 +44,4 @@ Aplikasi News Flash Live adalah simulator umpan berita (news feed) modern yang d
 * NewsFeedSimulator.kt: File utama yang berisi logika ViewModel, Repository, dan UI Screen.
 
 ---
-Dikembangkan oleh Daffa sebagai bagian dari pembelajaran pengembangan aplikasi Android modern.
+Dikembangkan oleh Daffa sebagai bagian dari pembelajaran pengembangan aplikasi Mobile.
