@@ -1,95 +1,47 @@
-This is a Kotlin Multiplatform project targeting Android, iOS, Web, Desktop (JVM), Server.
+# News Flash Live - Simulator Berita Real-time
 
-* [/composeApp](./composeApp/src) is for code that will be shared across your Compose Multiplatform applications.
-  It contains several subfolders:
-  - [commonMain](./composeApp/src/commonMain/kotlin) is for code that’s common for all targets.
-  - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-    For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
-    the [iosMain](./composeApp/src/iosMain/kotlin) folder would be the right place for such calls.
-    Similarly, if you want to edit the Desktop (JVM) specific part, the [jvmMain](./composeApp/src/jvmMain/kotlin)
-    folder is the appropriate location.
+Aplikasi News Flash Live adalah simulator umpan berita (news feed) modern yang dibangun menggunakan Kotlin Multiplatform (KMP) dan Jetpack Compose. Aplikasi ini mendemonstrasikan pengolahan data reaktif secara real-time menggunakan teknologi terbaru dalam ekosistem Android.
 
-* [/iosApp](./iosApp/iosApp) contains iOS applications. Even if you’re sharing your UI with Compose Multiplatform,
-  you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
+## Pratinjau Aplikasi
+![Tampilan Aplikasi](preview.png)
 
-* [/server](./server/src/main/kotlin) is for the Ktor server application.
+## Fitur Utama
+* Real-time News Stream: Simulasi pengiriman berita baru secara otomatis setiap 2,5 detik menggunakan Kotlin Flow.
+* Dynamic Filtering: Sistem filtrasi kategori (Teknologi, Olahraga, Bisnis, dll) yang responsif.
+* Async Content Loading: Simulasi pengambilan detail berita dari server secara asinkron menggunakan Coroutines dengan indikator pemuatan (loading state).
+* Interactive UI: Antarmuka modern dengan kartu berita yang dapat dikembangkan (expandable card) dan animasi halus.
+* State Management: Melacak jumlah berita yang telah dibaca secara akurat menggunakan StateFlow.
 
-* [/shared](./shared/src) is for the code that will be shared between all targets in the project.
-  The most important subfolder is [commonMain](./shared/src/commonMain/kotlin). If preferred, you
-  can add code to the platform-specific folders here too.
+## Teknologi yang Digunakan
+* Kotlin Multiplatform (KMP): Struktur proyek lintas platform.
+* Jetpack Compose: Untuk membangun UI deklaratif yang modern.
+* Kotlin Coroutines & Flow: Menangani aliran data asinkron dan manajemen konkurensi.
+* MVVM Architecture: Pemisahan logika bisnis (ViewModel) dan tampilan (UI) yang bersih.
+* Material Design 3: Standar desain terbaru dari Google untuk komponen UI.
 
-### Build and Run Android Application
+## Cara Menjalankan Program
 
-To build and run the development version of the Android app, use the run configuration from the run widget
-in your IDE’s toolbar or build it directly from the terminal:
-- on macOS/Linux
-  ```shell
-  ./gradlew :composeApp:assembleDebug
-  ```
-- on Windows
-  ```shell
-  .\gradlew.bat :composeApp:assembleDebug
-  ```
+### Prasyarat
+* Android Studio (Versi Ladybug atau yang terbaru disarankan).
+* JDK 11 atau lebih tinggi.
+* Koneksi internet untuk sinkronisasi Gradle pertama kali.
 
-### Build and Run Desktop (JVM) Application
+### Langkah-langkah
+1. Clone Repositori:
+   git clone https://github.com/username-anda/nama-repo.git
+2. Buka Proyek:
+   Buka Android Studio, lalu pilih Open dan arahkan ke folder hasil clone tadi.
+3. Sync Gradle:
+   Tunggu Android Studio menyelesaikan proses sinkronisasi Gradle. Jika muncul bar notifikasi bertuliskan "Sync Now", klik tombol tersebut.
+4. Pilih Target Run:
+   Pada toolbar atas Android Studio, pastikan konfigurasi jalannya adalah composeApp dan pilih emulator atau perangkat Android fisik Anda.
+5. Jalankan:
+   Klik tombol Run (ikon Play hijau) atau tekan Shift + F10.
 
-To build and run the development version of the desktop app, use the run configuration from the run widget
-in your IDE’s toolbar or run it directly from the terminal:
-- on macOS/Linux
-  ```shell
-  ./gradlew :composeApp:run
-  ```
-- on Windows
-  ```shell
-  .\gradlew.bat :composeApp:run
-  ```
-
-### Build and Run Server
-
-To build and run the development version of the server, use the run configuration from the run widget
-in your IDE’s toolbar or run it directly from the terminal:
-- on macOS/Linux
-  ```shell
-  ./gradlew :server:run
-  ```
-- on Windows
-  ```shell
-  .\gradlew.bat :server:run
-  ```
-
-### Build and Run Web Application
-
-To build and run the development version of the web app, use the run configuration from the run widget
-in your IDE's toolbar or run it directly from the terminal:
-- for the Wasm target (faster, modern browsers):
-  - on macOS/Linux
-    ```shell
-    ./gradlew :composeApp:wasmJsBrowserDevelopmentRun
-    ```
-  - on Windows
-    ```shell
-    .\gradlew.bat :composeApp:wasmJsBrowserDevelopmentRun
-    ```
-- for the JS target (slower, supports older browsers):
-  - on macOS/Linux
-    ```shell
-    ./gradlew :composeApp:jsBrowserDevelopmentRun
-    ```
-  - on Windows
-    ```shell
-    .\gradlew.bat :composeApp:jsBrowserDevelopmentRun
-    ```
-
-### Build and Run iOS Application
-
-To build and run the development version of the iOS app, use the run configuration from the run widget
-in your IDE’s toolbar or open the [/iosApp](./iosApp) directory in Xcode and run it from there.
+## Struktur Proyek
+* composeApp/src/androidMain: Berisi kode spesifik platform Android dan MainActivity.
+* composeApp/src/commonMain: Tempat logika UI dan komponen Compose yang dibagikan.
+* NewsFeedSimulator.kt: File utama yang berisi logika ViewModel, Repository, dan UI Screen.
 
 ---
-
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html),
-[Compose Multiplatform](https://github.com/JetBrains/compose-multiplatform/#compose-multiplatform),
-[Kotlin/Wasm](https://kotl.in/wasm/)…
-
-We would appreciate your feedback on Compose/Web and Kotlin/Wasm in the public Slack channel [#compose-web](https://slack-chats.kotlinlang.org/c/compose-web).
-If you face any issues, please report them on [YouTrack](https://youtrack.jetbrains.com/newIssue?project=CMP).
+Dikembangkan oleh Daffa sebagai bagian dari pembelajaran pengembangan aplikasi Android modern.
