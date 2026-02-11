@@ -1,71 +1,41 @@
 package com.example.newsfeeddaffa
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.*
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import java.util.*
 
-data class RawNews(
-    val id: Int,
-    val title: String,
-    val category: String,
-    val timestamp: Long
-)
+data class RawNews(val id: Int, val title: String, val category: String, val timestamp: Long)
 
 data class NewsUiModel(
     val id: Int,
@@ -81,27 +51,27 @@ data class NewsUiModel(
 
 class NewsRepository {
     private var counter = 0
-    private val categories = listOf("Teknologi", "Olahraga", "Bisnis", "Politik")
+    private val categories = listOf("Teknologi", "Olahraga", "Bisnis", "Politik", "Kesehatan")
 
     val newsStream: Flow<RawNews> = flow {
         while (true) {
-            delay(2000)
+            delay(2500)
             counter++
             val randomCategory = categories.random()
-            emit(RawNews(
-                id = counter,
-                title = "Berita #$counter: Update Terkini $randomCategory",
-                category = randomCategory,
-                timestamp = System.currentTimeMillis()
-            ))
+            val titles = listOf(
+                "Inovasi Terbaru di Sektor $randomCategory",
+                "Tren Global $randomCategory Tahun 2026",
+                "Laporan Khusus: Perkembangan $randomCategory",
+                "Pendapat Ahli Mengenai $randomCategory",
+                "Update Strategis Industri $randomCategory"
+            )
+            emit(RawNews(id = counter, title = titles.random() + " #$counter", category = randomCategory, timestamp = System.currentTimeMillis()))
         }
     }
 
     suspend fun fetchNewsDetail(id: Int): String {
         delay(1000)
-        return "Ini adalah detail lengkap untuk berita nomor $id. \n\n" +
-                "Analisis mendalam menunjukkan bahwa tren di sektor ini sedang meningkat pesat. " +
-                "Para ahli menyarankan untuk memantau perkembangan lebih lanjut dalam beberapa hari ke depan."
+        return "Detail lengkap berita #$id: Berita ini merangkum perkembangan terbaru yang terjadi secara signifikan. Analisis menunjukkan bahwa dampak jangka panjang akan mulai terlihat dalam beberapa bulan ke depan."
     }
 }
 
@@ -109,74 +79,49 @@ class NewsViewModel : ViewModel() {
     private val repository = NewsRepository()
     private val _newsList = MutableStateFlow<List<NewsUiModel>>(emptyList())
     val newsList: StateFlow<List<NewsUiModel>> = _newsList.asStateFlow()
-
     private val _readCount = MutableStateFlow(0)
     val readCount: StateFlow<Int> = _readCount.asStateFlow()
-
     private val _activeFilter = MutableStateFlow<String?>(null)
     val activeFilter: StateFlow<String?> = _activeFilter.asStateFlow()
 
     init {
         viewModelScope.launch {
-            repository.newsStream
-                .map { raw ->
-                    NewsUiModel(
-                        id = raw.id,
-                        displayTitle = raw.title.uppercase(),
-                        categoryColor = getCategoryColor(raw.category),
-                        timeFormatted = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date(raw.timestamp)),
-                        category = raw.category
-                    )
-                }
-                .collect { newItem ->
-                    _newsList.update { listOf(newItem) + it }
-                }
+            repository.newsStream.map { raw ->
+                NewsUiModel(
+                    id = raw.id,
+                    displayTitle = raw.title,
+                    categoryColor = when(raw.category) {
+                        "Teknologi" -> Color(0xFF3F51B5)
+                        "Olahraga" -> Color(0xFFE91E63)
+                        "Bisnis" -> Color(0xFF009688)
+                        "Politik" -> Color(0xFFFF9800)
+                        else -> Color(0xFF4CAF50)
+                    },
+                    timeFormatted = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date(raw.timestamp)),
+                    category = raw.category
+                )
+            }.collect { newItem -> _newsList.update { listOf(newItem) + it } }
         }
     }
 
-    fun setFilter(category: String?) {
-        _activeFilter.value = category
-    }
+    fun setFilter(category: String?) { _activeFilter.value = category }
 
     fun onNewsClicked(newsItem: NewsUiModel) {
         if (newsItem.isLoading) return
-
         if (newsItem.detailContent != null) {
             updateItem(newsItem.id) { it.copy(isExpanded = !it.isExpanded) }
             return
         }
-
         viewModelScope.launch {
             updateItem(newsItem.id) { it.copy(isLoading = true) }
             val detail = repository.fetchNewsDetail(newsItem.id)
-            updateItem(newsItem.id) {
-                it.copy(
-                    isLoading = false,
-                    isRead = true,
-                    detailContent = detail,
-                    isExpanded = true
-                )
-            }
-            if (!newsItem.isRead) {
-                _readCount.update { it + 1 }
-            }
+            updateItem(newsItem.id) { it.copy(isLoading = false, isRead = true, detailContent = detail, isExpanded = true) }
+            if (!newsItem.isRead) _readCount.update { it + 1 }
         }
     }
 
     private fun updateItem(id: Int, update: (NewsUiModel) -> NewsUiModel) {
-        _newsList.update { list ->
-            list.map { if (it.id == id) update(it) else it }
-        }
-    }
-
-    private fun getCategoryColor(category: String): Color {
-        return when(category) {
-            "Teknologi" -> Color(0xFF2196F3)
-            "Olahraga" -> Color(0xFF4CAF50)
-            "Bisnis" -> Color(0xFFF44336)
-            "Politik" -> Color(0xFFFF9800)
-            else -> Color.Gray
-        }
+        _newsList.update { list -> list.map { if (it.id == id) update(it) else it } }
     }
 }
 
@@ -185,51 +130,43 @@ fun NewsFeedScreen(viewModel: NewsViewModel = viewModel()) {
     val allNews by viewModel.newsList.collectAsState()
     val readCount by viewModel.readCount.collectAsState()
     val activeFilter by viewModel.activeFilter.collectAsState()
-
     val displayedNews = remember(allNews, activeFilter) {
-        if (activeFilter == null) allNews
-        else allNews.filter { it.category == activeFilter }
+        if (activeFilter == null) allNews else allNews.filter { it.category == activeFilter }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .statusBarsPadding()
-            .padding(16.dp)
-    ) {
-        Text("News Feed Simulator", fontSize = 24.sp, fontWeight = FontWeight.Bold)
-        Text("Berita Dibaca: $readCount", fontSize = 16.sp, color = MaterialTheme.colorScheme.primary)
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            FilterButton("Semua", activeFilter == null) { viewModel.setFilter(null) }
-            FilterButton("Tekno", activeFilter == "Teknologi") { viewModel.setFilter("Teknologi") }
-            FilterButton("Olahraga", activeFilter == "Olahraga") { viewModel.setFilter("Olahraga") }
-            FilterButton("Bisnis", activeFilter == "Bisnis") { viewModel.setFilter("Bisnis") }
-            FilterButton("Politik", activeFilter == "Politik") { viewModel.setFilter("Politik") }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        if (displayedNews.isEmpty()) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    CircularProgressIndicator()
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text("Menunggu berita masuk...", color = Color.Gray)
+    Scaffold(
+        modifier = Modifier.fillMaxSize().statusBarsPadding(),
+        topBar = {
+            Surface(shadowElevation = 3.dp) {
+                Row(Modifier.fillMaxWidth().padding(16.dp), Arrangement.SpaceBetween, Alignment.CenterVertically) {
+                    Column {
+                        Text("NewsFeed Daffa", fontSize = 22.sp, fontWeight = FontWeight.Black)
+                        Text("Simulator Berita Real-time", fontSize = 12.sp, color = Color.Gray)
+                    }
+                    Surface(color = Color(0xFFE3F2FD), shape = RoundedCornerShape(16.dp)) {
+                        Text("$readCount Dibaca", Modifier.padding(8.dp, 4.dp), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color(0xFF2196F3))
+                    }
                 }
             }
-        } else {
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(bottom = 16.dp)
-            ) {
-                items(displayedNews, key = { it.id }) { news ->
-                    NewsCard(news = news, onClick = { viewModel.onNewsClicked(news) })
+        }
+    ) { pv ->
+        Column(Modifier.padding(pv).fillMaxSize().background(Color(0xFFF8F9FA))) {
+            Row(Modifier.fillMaxWidth().padding(vertical = 12.dp).horizontalScroll(rememberScrollState())) {
+                Spacer(Modifier.width(16.dp))
+                FilterChipItem("Semua", activeFilter == null) { viewModel.setFilter(null) }
+                listOf("Teknologi", "Olahraga", "Bisnis", "Politik", "Kesehatan").forEach {
+                    FilterChipItem(it, activeFilter == it) { viewModel.setFilter(it) }
+                }
+                Spacer(Modifier.width(16.dp))
+            }
+
+            if (displayedNews.isEmpty()) {
+                Box(Modifier.fillMaxSize(), Alignment.Center) { CircularProgressIndicator() }
+            } else {
+                LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp), contentPadding = PaddingValues(16.dp)) {
+                    items(displayedNews, key = { it.id }) { news ->
+                        NewsCardItem(news) { viewModel.onNewsClicked(news) }
+                    }
                 }
             }
         }
@@ -237,68 +174,46 @@ fun NewsFeedScreen(viewModel: NewsViewModel = viewModel()) {
 }
 
 @Composable
-fun FilterButton(text: String, isActive: Boolean, onClick: () -> Unit) {
-    Button(
-        onClick = onClick,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = if (isActive) MaterialTheme.colorScheme.primary else Color.LightGray
-        ),
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-        modifier = Modifier.height(36.dp)
+fun FilterChipItem(label: String, selected: Boolean, onClick: () -> Unit) {
+    Surface(
+        Modifier.padding(end = 8.dp).clickable { onClick() },
+        color = if (selected) Color.Black else Color.White,
+        shape = RoundedCornerShape(20.dp),
+        border = if (selected) null else androidx.compose.foundation.BorderStroke(1.dp, Color.LightGray)
     ) {
-        Text(text, fontSize = 12.sp)
+        Text(label, Modifier.padding(16.dp, 8.dp), fontSize = 12.sp, color = if (selected) Color.White else Color.Black)
     }
 }
 
 @Composable
-fun NewsCard(news: NewsUiModel, onClick: () -> Unit) {
+fun NewsCardItem(news: NewsUiModel, onClick: () -> Unit) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() },
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (news.isRead) Color(0xFFF0F0F0) else Color.White
-        )
+        Modifier.fillMaxWidth().clickable { onClick() },
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(2.dp)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Surface(
-                    color = news.categoryColor,
-                    modifier = Modifier.size(10.dp),
-                    shape = MaterialTheme.shapes.small
-                ) {}
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(news.category, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = news.categoryColor)
-                Spacer(modifier = Modifier.weight(1f))
-                Text(news.timeFormatted, fontSize = 12.sp, color = Color.Gray)
+                Box(Modifier.size(40.dp).clip(RoundedCornerShape(8.dp)).background(Brush.linearGradient(listOf(news.categoryColor, news.categoryColor.copy(0.6f)))), Alignment.Center) {
+                    Text(news.category.first().toString(), color = Color.White, fontWeight = FontWeight.Bold)
+                }
+                Spacer(Modifier.width(12.dp))
+                Column(Modifier.weight(1f)) {
+                    Text(news.category.uppercase(), fontSize = 10.sp, fontWeight = FontWeight.Bold, color = news.categoryColor)
+                    Text(news.timeFormatted, fontSize = 10.sp, color = Color.Gray)
+                }
+                if (!news.isRead) Icon(Icons.Default.Refresh, null, Modifier.size(16.dp), Color.Red)
+                else Icon(Icons.Default.Check, null, Modifier.size(16.dp), Color(0xFF4CAF50))
             }
+            Spacer(Modifier.height(8.dp))
+            Text(news.displayTitle, fontSize = 15.sp, fontWeight = FontWeight.Bold, color = if(news.isRead) Color.Gray else Color.Black, maxLines = 2, overflow = TextOverflow.Ellipsis)
 
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(news.displayTitle, fontSize = 16.sp, fontWeight = FontWeight.Medium)
+            if (news.isLoading) LinearProgressIndicator(Modifier.fillMaxWidth().padding(top = 8.dp).height(2.dp), news.categoryColor)
 
-            if (news.isLoading) {
-                Spacer(modifier = Modifier.height(12.dp))
-                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-                Text("Mengambil detail berita...", fontSize = 10.sp, color = Color.Gray, modifier = Modifier.padding(top = 4.dp))
-            }
-
-            AnimatedVisibility(
-                visible = news.isExpanded && news.detailContent != null,
-                enter = fadeIn() + expandVertically(),
-                exit = fadeOut() + shrinkVertically()
-            ) {
+            AnimatedVisibility(news.isExpanded && news.detailContent != null) {
                 Column {
-                    Spacer(modifier = Modifier.height(12.dp))
-                    HorizontalDivider()
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Text(
-                        text = news.detailContent ?: "",
-                        fontSize = 14.sp,
-                        lineHeight = 20.sp,
-                        color = Color.DarkGray,
-                        fontStyle = FontStyle.Italic
-                    )
+                    HorizontalDivider(Modifier.padding(vertical = 12.dp), color = Color(0xFFEEEEEE))
+                    Text(news.detailContent ?: "", fontSize = 13.sp, lineHeight = 18.sp, color = Color.DarkGray)
                 }
             }
         }
