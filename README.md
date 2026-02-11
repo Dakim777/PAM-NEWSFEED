@@ -1,6 +1,6 @@
-# News Flash Live - Simulator Berita Real-time
+# News Feed Daffa - Simulator Berita Real-time
 
-Aplikasi News Flash Live adalah simulator umpan berita (news feed) modern yang dibangun menggunakan Kotlin Multiplatform (KMP) dan Jetpack Compose. Aplikasi ini mendemonstrasikan pengolahan data reaktif secara real-time menggunakan teknologi terbaru dalam ekosistem Android.
+Aplikasi News Feed Daffa adalah simulator umpan berita (news feed) modern yang dibangun menggunakan Kotlin Multiplatform (KMP) dan Jetpack Compose. Aplikasi ini mendemonstrasikan pengolahan data reaktif secara real-time menggunakan teknologi terbaru dalam ekosistem Android.
 
 ## Pratinjau Aplikasi
 ![Tampilan Aplikasi](preview.png)
